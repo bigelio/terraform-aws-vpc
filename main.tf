@@ -69,3 +69,37 @@ resource "aws_instance" "custom_ec2_instance" {
   }
 
 }
+
+# AWS RDS
+
+resource "aws_db_subnet_group" "custom_db_subnet" {
+  name       = "custom_db_subnet"
+  subnet_ids = ["10.0.4.0/24", "10.0.5.0/24"]
+  tags = {
+    Name = "custom db subnet"
+  }
+} 
+resource "aws_db_parameter_group" "custom_db_parameter_group" {
+  name   = "custom_db_parameter_group"
+  family = "postgres13"
+
+  parameter {
+    name  = "log_connections"
+    value = "1"
+  }
+}  
+
+resource "aws_db_instance" "custom_db_instance" {
+  identifier             = "custom_db_instance"
+  instance_class         = "db.t3.micro"
+  allocated_storage      = 5
+  engine                 = "postgres"
+  engine_version         = "13.1"
+  username               = var.db_username
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.custom_db_subnet.name
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  parameter_group_name   = aws_db_parameter_group.custom_db_parameter_group.name
+  publicly_accessible    = false
+  skip_final_snapshot    = true
+}
