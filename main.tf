@@ -6,6 +6,11 @@ terraform {
       version = "~> 3.0"
     }
   }
+  backend "s3" {
+    bucket = "custom-bucket"
+    key    = "tfstate_files/terraform.tfstate"
+    region = "af-south-1"
+  }
 }
 
 # Configure the AWS Provider
@@ -22,5 +27,14 @@ resource "aws_vpc" "custom-vpc" {
 
   tags = {
     Name = "custom-vpc"
+  }
+}
+# Creating bucket for storing state 
+resource "aws_s3_bucket" "custom-bucket" {
+  bucket = "custom-bucket"
+  acl    = "private"
+
+  versioning {
+    enabled = true
   }
 }
